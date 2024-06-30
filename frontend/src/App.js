@@ -16,17 +16,41 @@ class App extends Component {
       },
     };
   }
+  handleDelete = (item) => {
+    axios
+      .delete(`http://localhost:8000/api/todos/${item.id}/`)
+      .then((res) => this.refreshList())
+      .catch((err) => console.error(err));
+  };
+  
+
+  createItem = () => {
+    const item = { title: "", description: "", completed: false };
+    this.setState({ activeItem: item, modal: !this.state.modal });
+  };
+
+  editItem = (item) => {
+    this.setState({ activeItem: item, modal: !this.state.modal });
+  };
+
+  displayCompleted = (status) => {
+    this.setState((prevState) => ({ viewCompleted: status }));
+  };
+
 
   componentDidMount() {
     this.refreshList();
   }
 
-  refreshList = () => {
-    axios
-      .get("/api/todos/")
-      .then((res) => this.setState({ todoList: res.data }))
-      .catch((err) => console.log(err));
+  refreshList = async () => {
+    try {
+      const response = await axios.get("http://localhost:8000/api/todos/");
+      this.setState({ todoList: response.data });
+    } catch (err) {
+      console.error(err); // Use console.error for errors
+    }
   };
+  
 
   toggle = () => {
     this.setState({ modal: !this.state.modal });
@@ -36,35 +60,14 @@ class App extends Component {
     this.toggle();
 
     if (item.id) {
-      axios
-        .put(`/api/todos/${item.id}/`, item)
-        .then((res) => this.refreshList());
+      axios.put(`http://localhost:8000/api/todos/${item.id}/`, item)
+        .then((res) => this.refreshList())
+        .catch((err) => console.error(err)); // Handle potential errors
       return;
-    }
-    axios
-      .post("/api/todos/", item)
-      .then((res) => this.refreshList());
-  };
-
-  handleDelete = (item) => {
-    axios
-      .delete(`/api/todos/${item.id}/`)
-      .then((res) => this.refreshList());
-  };
-
-  createItem = () => {
-    const item = { title: "", description: "", completed: false };
-
-    this.setState({ activeItem: item, modal: !this.state.modal });
-  };
-
-  editItem = (item) => {
-    this.setState({ activeItem: item, modal: !this.state.modal });
-  };
-
-  displayCompleted = (status) => {
-    if (status) {
-      return this.setState({ viewCompleted: true });
+    } else {
+      axios.post(`http://localhost:8000/api/todos/`, item)
+        .then((res) => this.refreshList())
+        .catch((err) => console.error(err)); // Handle potential errors
     }
 
     return this.setState({ viewCompleted: false });
