@@ -1,0 +1,9 @@
+.vscode
+/.vscode
+/Pipfile
+/Pipfile.lock
+/.vscode/settings.json
+.__pycache__
+__pycache__
+
+/frontend/package.json
